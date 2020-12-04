@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <link rel="icon" type="image/png" href="https://www.pimarkets.io/favicon.ico"/>
+    <title>PiMarkets® Reportes</title>
+    <script src="https://cdn.jsdelivr.net/npm/pi-markets@1.0.12/dist/pimarkets.min.js"></script>
+    <script type="text/javascript">
+        let timeLow = 0;
+        let timeHigh = 32703676400;
+
+        const allTokens = [
+            pimarkets.Constants.PI,
+            pimarkets.Constants.BTC,
+            pimarkets.Constants.USC,
+            pimarkets.Constants.ETH,
+            pimarkets.Constants.EUR,
+            pimarkets.Constants.PEN,
+            pimarkets.Constants.ARS,
+            pimarkets.Constants.USD,
+            pimarkets.Constants.VES,
+            pimarkets.Constants.PEL,
+            pimarkets.Constants.GLDX,
+            pimarkets.Constants.CLP,
+            pimarkets.Constants.USDT,
+            pimarkets.Constants.RST,
+            pimarkets.Constants.BNC,
+            pimarkets.Constants.PGR,
+            pimarkets.Constants.ENV,
+            pimarkets.Constants.TDVD,
+            pimarkets.Constants.BPV,
+            pimarkets.Constants.FVIA,
+            pimarkets.Constants.CRMA
+        ]
+
+        const tokensArray = [
+            pimarkets.Constants.PI,
+            pimarkets.Constants.BTC,
+            pimarkets.Constants.USC,
+            pimarkets.Constants.ETH,
+            pimarkets.Constants.EUR,
+            pimarkets.Constants.PEN,
+            pimarkets.Constants.ARS,
+            pimarkets.Constants.USD,
+            pimarkets.Constants.VES,
+            pimarkets.Constants.PEL,
+            pimarkets.Constants.GLDX,
+            pimarkets.Constants.CLP,
+            pimarkets.Constants.USDT
+        ];
+
+        const packablesArray = [
+            pimarkets.Constants.RST,
+            pimarkets.Constants.RST,
+            pimarkets.Constants.BNC,
+            pimarkets.Constants.PGR,
+            pimarkets.Constants.ENV,
+            pimarkets.Constants.TDVD,
+            pimarkets.Constants.BPV,
+            pimarkets.Constants.FVIA,
+            pimarkets.Constants.CRMA
+        ];
+
+        const packableDealArray = [
+            pimarkets.Constants.RST,
+            pimarkets.Constants.BNC,
+            pimarkets.Constants.PGR,
+            pimarkets.Constants.ENV,
+            pimarkets.Constants.TDVD,
+            pimarkets.Constants.BPV,
+            pimarkets.Constants.FVIA,
+            pimarkets.Constants.CRMA
+        ];
+
+        const expiries = [
+            pimarkets.Constants.RST.expiry.ene21,
+            pimarkets.Constants.RST.expiry.nov21,
+            pimarkets.Constants.BNC.expiry.nov21,
+            pimarkets.Constants.PGR.expiry.nov21,
+            pimarkets.Constants.ENV.expiry.nov21,
+            pimarkets.Constants.TDVD.expiry.nov21,
+            pimarkets.Constants.BPV.expiry.nov21,
+            pimarkets.Constants.FVIA.expiry.nov21,
+            pimarkets.Constants.CRMA.expiry.nov21,
+        ];
+
+        const collectablesArray = [
+            pimarkets.Constants.DIA,
+            pimarkets.Constants.GLDS
+        ];
+
+        async function getExcel() {
+            document.getElementById("wait").innerHTML = "Espere...esto puede tardar...";
+            let selectorElement = document.getElementById("reportSelector");
+		    let reportSelector = selectorElement.options[selectorElement.selectedIndex].value;
+            //updateTimestamps();
+            let selectorElement2 = document.getElementById("monthSelector");
+		    let reportSelector2 = selectorElement2.options[selectorElement2.selectedIndex].value;
+            let year = 2020;
+            let month = 0;
+            if (reportSelector2 == "11") {
+                month = 11;
+            } else if (reportSelector2 == "12") {
+                month = 12;
+            }
+
+            switch(reportSelector) {
+                case "1":
+                    await getTransactionReport(month, year);
+                    break;
+                case "2":
+                    await getTokenHoldersReport(); 
+                    break;
+                case "3":
+                    await getPackableHoldersReport();
+                    break;
+                case "4":
+                    await getCollectableHoldersReport();
+                    break;
+                case "5":
+                    await getTokenDealsReport(month, year);
+                    break;
+                case "6":
+                    await getPackableDealsReport(month, year);
+                    break;
+                default:
+                    alert("Ningun reporte elegido");
+            }
+
+            document.getElementById("wait").innerHTML = "Descarga completada";
+        }
+
+        async function getTransactionReport(month, year) {
+            let reportsService = new pimarkets.Report('mainnet');
+            await reportsService.getTransactionReportV2(
+                month,
+                year,
+                allTokens
+            )
+        }
+
+        async function getTokenHoldersReport() {
+            let reportsService = new pimarkets.Report('mainnet');
+            await reportsService.getTokenHoldersReport(
+                "balance",
+                "desc",
+                tokensArray
+            )
+        }
+
+        async function getPackableHoldersReport() {
+            let reportsService = new pimarkets.Report('mainnet');
+            await reportsService.getPackableHoldersReport(
+                "balance",
+                "desc",
+                packablesArray,
+                expiries
+            )
+        }
+
+        async function getCollectableHoldersReport() {
+            let reportsService = new pimarkets.Report('mainnet');
+            await reportsService.getCollectableHoldersReport(
+                "balance",
+                "desc",
+                collectablesArray
+            )
+        }
+
+        async function getTokenDealsReport(month, year) {
+            let reportsService = new pimarkets.Report('mainnet');
+            await reportsService.getTokenDealsReportV2(
+                month,
+                year,
+                tokensArray
+            )
+        }
+
+        async function getPackableDealsReport(month, year) {
+            let reportsService = new pimarkets.Report('mainnet');
+            await reportsService.getPackableDealsReportV2(
+                month,
+                year,
+                packableDealArray
+            )
+        }
+
+        /*function updateTimestamps() {
+
+            let fromDate = document.getElementById("fromDate").value;
+
+            if (fromDate != "") {
+                fromDate = fromDate.split("/");
+                let newFromDate = new Date( fromDate[2], fromDate[1] - 1, fromDate[0]);
+                timeLow = newFromDate.getTime() / 1000;
+            }
+            
+            let toDate = document.getElementById("toDate").value;
+
+            if (toDate != "") {
+                toDate = toDate.split("/");
+                let newToDate = new Date( toDate[2], toDate[1] - 1, toDate[0]);
+                timeHigh = newToDate.getTime() / 1000;
+            }
+        }*/
+
+        function getUtcTime() {
+            return parseInt(Date.now() / 1000);
+        }
+
+        function getTime() {
+            return timeConverter(Date.now() / 1000);
+        }
+
+        function timeConverter(UNIX_timestamp) {
+            var a = new Date(UNIX_timestamp * 1000);
+            var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            var year = a.getFullYear();
+            var month = months[a.getMonth()];
+            var date = a.getDate();
+            var hour = a.getHours();
+            var min = a.getMinutes();
+            var sec = a.getSeconds();
+            var time = date + ' ' + month + ' ' + year + ' ' + hour + ':' + min + ':' + sec;
+            return time;
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+  </head>
+  <body>
+  <style type='text/css'>
+        body {
+            font-family: 'Open Sans', sans-serif;
+            font-weight: 400;
+            background-color: #004381
+        }
+        
+        h1 {
+            color: white;
+        }
+
+        h2 {
+            color: white;
+        }
+
+        h3 {
+            color: white;
+        }
+
+        h4 {
+            color: white;
+        }
+
+        h5 {
+            color: white;
+        }
+
+        .mySelector {
+            font-family: 'Open Sans', sans-serif;
+            font-weight: 400;
+            width: 150px;
+            font-size: 16px;
+        }
+
+        .myCheckbox {
+            font-color: white;
+            background-color: green;
+        }
+
+        label {
+            color:white;
+            font-family: 'Open Sans', sans-serif;
+        }
+
+        .myButton {
+            box-shadow: 0px 1px 0px 0px #fff6af;
+            background:linear-gradient(to bottom, #ffec64 5%, #ffab23 100%);
+            background-color:#ffec64;
+            border-radius:6px;
+            border:1px solid #ffaa22;
+            display:inline-block;
+            cursor:pointer;
+            color:#333333;
+            font-family:Arial;
+            font-size:15px;
+            font-weight:bold;
+            padding:6px 24px;
+            text-decoration:none;
+            text-shadow:0px 1px 0px #ffee66;
+        }
+        .myButton:hover {
+            background:linear-gradient(to bottom, #ffab23 5%, #ffec64 100%);
+            background-color:#ffab23;
+        }
+        .myButton:active {
+            position:relative;
+            top:1px;
+        }
+
+        .redondeadonorelieve {
+            border-radius: 5px;
+            border: 1px solid #39c;
+            text-align: center;
+            line-height: 30px;
+        }
+
+        .center {
+            margin: auto;
+            padding: 10px;
+            text-align: center;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+
+    <div class="center">
+        <h1>PiMarkets®</h1>
+        <h4>- Reportes -</h4>
+        <br>
+        <select class="mySelector" name="reportSelector" id="reportSelector">
+            <option value="0">Elegir tipo...</option>
+            <option value="1">Transacciones</option>
+            <option value="2">Tenedores (Divisa)</option>
+            <option value="3">Tenedores (Packable)</option>
+            <option value="4">Tenedores (Coleccionable)</option>
+            <option value="5">Pactos (Divisa)</option>
+            <option value="6">Pactos (Packable)</option>
+        </select>
+        <br>
+        <br>
+        <select class="mySelector" name="monthSelector" id="monthSelector">
+            <option value="11">Noviembre 2020</option>
+            <option value="12">Diciembre 2020</option>
+        </select>
+        <br>
+        <br>
+        <div style="color: white;" id="wait"></div>
+        <br>
+        <button class="myButton" onclick="getExcel();">Descargar Excel</button>
+    </div>
+  </body>
+</html>
